@@ -1,0 +1,19 @@
+# Pycharm
+.idea
+
+# For training
+Local_Data
+Local_Rat_Tensorboard
+Local_Logs
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Debug
+/SimuEnv_Rigid/RL_wrapper3_ConnectBK.py
+/SimuEnv_Rigid/MUJOCO_LOG.TXT
