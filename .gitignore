@@ -5,6 +5,8 @@
 Local_Data
 Local_Rat_Tensorboard
 Local_Logs
+Local_Runs
+Outputs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -15,5 +17,4 @@ __pycache__/
 *.so
 
 # Debug
-/SimuEnv_Rigid/RL_wrapper3_ConnectBK.py
-/SimuEnv_Rigid/MUJOCO_LOG.TXT
+MUJOCO_LOG.TXT
