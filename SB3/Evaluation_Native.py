@@ -1,5 +1,6 @@
-# from RatEnv.RL_wrapper3_Connect import RatRL
-from RatEnv.RL_wrapper2_Dir import RatRL
+from RatEnv.RL_wrapper3_Connect import RatRL
+# from RatEnv.RL_wrapper2_Dir import RatRL
+# from RatEnv.RL_wrapper2_Dir_NewMJ import RatRL
 # from RatEnv.RL_wrapper2_MujoEnv_Compare import RatRL
 # from RatEnv.RL_wrapper2 import RatRL
 import gym
@@ -14,18 +15,18 @@ from Tools.DataRecorder import DATA_Recorder
 RENDER = True
 
 if __name__ == '__main__':
-    SceneFile = "../models/dynamic_4l_t3_Change.xml"
-    MODELPATH = "data/S0_PPO_Native_073"
+    # SceneFile = "../models/dynamic_4l_t3_Change.xml"
+    # MODELPATH = "Local_Data/S0_PPO_Native_073"
 
 
-    # SceneFile = "../models/scene_test1.xml"
-    # MODELPATH = "data/S1_PPO_Native_056"
-    # MODELPATH = "data/S1_PPO_NativeStime_083"
-    # MODELPATH = "data/S1_SAC_NativeStime_084"
-    # MODELPATH = "data/S1_A2C_NativeStime_085"
+    SceneFile = "../models/scene_test1.xml"
+    MODELPATH = "Local_Data/S1_PPO_102"
+    # MODELPATH = "Local_Data/S1_PPO_NativeStime_083"
+    # MODELPATH = "Local_Data/S1_SAC_NativeStime_084"
+    # MODELPATH = "Local_Data/S1_A2C_NativeStime_085"
 
     # SceneFile = "../models/scene_test2.xml"  # S2
-    # MODELPATH = "data/S2_PPO_Native_063"
+    # MODELPATH = "Local_Data/S2_PPO_Native_114"
     # # Failled up
 
     # SceneFile = "../models/scene_test2pro.xml"  # S2
@@ -48,25 +49,26 @@ if __name__ == '__main__':
     # Enjoy trained agent
     vec_env = model.get_env()
     obs = vec_env.reset()
-    pos_Ori = vec_env.envs[0].pos[1]
-    pos_end = []
+    # pos_Ori = vec_env.envs[0].pos[1]
+    # pos_end = []
     for i in range(int(6000/5)):
-        pos_pre = vec_env.envs[0].pos[1]
+        # pos_pre = vec_env.envs[0].pos[1]
 
         action, _states = model.predict(obs, deterministic=True)
+        action = [1., 1., 1., 1.]
         obs, rewards, dones, info = vec_env.step(action)
         # print(info)
         # print(vec_env.envs[0].pos)
         # vec_env.render()
-        Recorder.update(vec_env.envs[0])
+        # Recorder.update(vec_env.envs[0])
 
-        if dones[0]:
-            pos_end.append(pos_pre)
-            print(pos_pre)
+        # if dones[0]:
+        #     pos_end.append(pos_pre)
+        #     print(pos_pre)
 
-    times = np.array(vec_env.envs[0].episode_lengths)* vec_env.envs[0].dt
-    v_global = -(np.array(pos_end) - pos_Ori) / np.array(times)
-    print(v_global.mean())
+    # times = np.array(vec_env.envs[0].episode_lengths)* vec_env.envs[0].dt
+    # v_global = -(np.array(pos_end) - pos_Ori) / np.array(times)
+    # print(v_global.mean())
 
     # Recorder.savePath_Basic("S1_Pass_073")
 

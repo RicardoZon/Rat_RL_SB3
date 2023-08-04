@@ -200,3 +200,12 @@ class RatRL(gym.Env):
         self._step = self._step + 1
         s, r, done, info = self.OneStepProcess()
         return s, r, done, info
+
+if __name__ == '__main__':
+    # SceneName = "../models/dynamic_4l_t3.xml"
+    SceneName = "../models/dynamic_4l_t3_Change.xml"
+    RENDER = True
+    env = RatRL(SceneName, Render=RENDER, timestep=0.01)
+    s = env.reset()
+    for _ in range(5000):
+        env.step([0., 0., 0., 0., 0., 0., 0., 0.])
