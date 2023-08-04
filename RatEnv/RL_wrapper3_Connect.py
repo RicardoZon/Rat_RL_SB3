@@ -15,7 +15,6 @@ class RatRL(gym.Env):
         # self.action_space = spaces.
         # self.observation_space=
         self.SceneName = SceneName
-        # self.reset(Render=Render) should reset yourself
 
         # Wrapper
         high = np.array([np.inf] * 12).astype(np.float32)
@@ -33,7 +32,8 @@ class RatRL(gym.Env):
                             type=float, help="Gait stride")
         args = parser.parse_args()
         self.theMouse = SimModel(self.SceneName, Render=Render)
-        self.theController = MouseController(args.fre, timestep=timestep)
+        self.theController = MouseController(args.fre, dt=timestep)
+        self.Render = Render
         self.ActionIndex = 0
         self.Action_Div = [47, 47, 47, 47, 47, 47, 47, 47]  # 93, 93, 93, 94
         self.MaxActIndex = len(self.Action_Div)  # V3_1 4
@@ -145,7 +145,7 @@ class RatRL(gym.Env):
         info = {}
         return s, r, self.done, info
 
-    def step(self, action, Render=False, LegCal=False):
+    def step(self, action, LegCal=False):
         """环境的主要驱动函数，主逻辑将在该函数中实现。该函数可以按照时间轴，固定时间间隔调用
 
         参数:
@@ -168,7 +168,7 @@ class RatRL(gym.Env):
 
             self.TimestepProcess()
             self.theMouse.runStep(tCtrlData, legposcal=LegCal)
-            if Render:
+            if self.Render:
                 self.render()
 
         self.ActionProcess()
@@ -205,3 +205,49 @@ class RatRL(gym.Env):
 
         rat = power[0]/sum(power)
         return rat
+
+
+if __name__ == '__main__':
+    RENDER = True
+
+    RUN_STEPS = 4000
+    # RUN_STEPS = 50  # Half Per Action
+    SceneName = "../models/dynamic_4l_t3.xml"
+    # SceneName = "../models/dynamic_4l_t3_Change.xml"
+    # SceneName = "../models/scene_test3.xml"
+    # SceneName = "../models/scene_test1.xml"
+
+    env = RatRL(SceneName, Render=RENDER)
+    R = []
+    V_vels = []
+    V_x = []
+    V_z = []
+
+    Rats = []
+
+    s = env.reset()
+    for _ in range(RUN_STEPS):
+        # theta
+        action = [1, 1, 1, 1]  # FL, FR, HL, HR  [-1, 1]-->[0,1]:  (a+1)/2
+        observation, reward, done, info = env.step(action)
+        # env.render()
+
+        V_vels.append(-env.Vels_mean[1]*4)
+        V_x.append(env.Vels_mean[0])
+        V_z.append(env.Vels_mean[2])
+        # Delta_vels.append(env.Delta_vel)
+        R.append(reward)
+        print(env.theController.curStep)
+        # plot_simple([info])
+
+
+    # plot_simple([V_vels[100:3000], Delta_vels[100:3000],
+    #              R[100 + env.Window_Cover:3000 + +env.Window_Cover]])
+
+    # plot_simple([V_vels[:], R[:], Rats],
+    #             leg=['V_vels', 'R', 'rats'])
+
+    # plot_simple([V_x, V_z],
+    #             leg=['V_x', 'V_z'])
+
+
