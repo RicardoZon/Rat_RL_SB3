@@ -1,7 +1,4 @@
-# from RatEnv.RL_wrapper3_Connect import RatRL
-from RatEnv.RL_wrapper2_Dir import RatRL
-# from RatEnv.RL_wrapper2_MujoEnv_Compare import RatRL
-# from RatEnv.RL_wrapper2 import RatRL
+from RatEnv.RL_wrapper3_Connect import RatRL
 import gym
 from stable_baselines3 import PPO
 # from stable_baselines3 import SAC
@@ -14,8 +11,9 @@ from Tools.DataRecorder import DATA_Recorder
 RENDER = True
 
 if __name__ == '__main__':
-    SceneFile = "../models/dynamic_4l_t3_Change.xml"
-    MODELPATH = "data/S0_PPO_Native_073"
+    SceneFile = "../models/dynamic_4l_t3.xml"
+    # MODELPATH = "Local_Data/S0_PPO_101"
+    # MODELPATH = "Local_Logs/S0_PPO_101/NAME_600000_steps"
 
 
     # SceneFile = "../models/scene_test1.xml"

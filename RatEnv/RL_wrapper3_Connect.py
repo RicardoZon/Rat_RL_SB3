@@ -2,7 +2,8 @@ import gym
 from gym import spaces
 import argparse
 
-from RatEnv.ToSim import SimModel
+# from RatEnv.ToSim import SimModel
+from mujoco_py import load_model_from_path, MjSim, MjViewer
 from RatEnv.RL_Controller import MouseController
 import matplotlib.pyplot as plt
 import time
@@ -10,11 +11,11 @@ import numpy as np
 from collections import deque
 
 class RatRL(gym.Env):
-    def __init__(self, SceneName, Render=False, timestep=0.002):
+    def __init__(self, xml_file: str, Render=False, timestep=0.002):
         super(RatRL, self).__init__()
         # self.action_space = spaces.
         # self.observation_space=
-        self.SceneName = SceneName
+
 
         # Wrapper
         high = np.array([np.inf] * 12).astype(np.float32)
@@ -31,23 +32,64 @@ class RatRL(gym.Env):
         parser.add_argument('--fre', default=0.67,
                             type=float, help="Gait stride")
         args = parser.parse_args()
-        self.theMouse = SimModel(self.SceneName, Render=Render)
-        self.theController = MouseController(args.fre, dt=timestep)
+
+        # self.theMouse = SimModel(self.SceneName, Render=Render)
+        self.model = load_model_from_path(xml_file)
+        self.sim = MjSim(self.model)
+        if Render:
+            # render must be called mannually
+            self.viewer = MjViewer(self.sim)
+            self.viewer.cam.azimuth = 0
+            self.viewer.cam.lookat[0] += 0.25
+            self.viewer.cam.lookat[1] += -0.5
+            self.viewer.cam.distance = self.model.stat.extent * 0.5
+        self.sim_state = self.sim.get_state()
+        self.sim.set_state(self.sim_state)
+
+        self.frame_skip = 1
+        self._timestep = self.model.opt.timestep  # Default = 0.002s per timestep
+        self.dt = self._timestep * self.frame_skip  # dt = 0.01s
+        self.theController = MouseController(args.fre, dt=self.dt)
+
+        self.imu_pos = deque([])
+        self.imu_quat = deque([])
+        self.imu_vel = deque([])
+        self.imu_acc = deque([])
+        self.imu_gyro = deque([])
+
+
         self.Render = Render
         self.ActionIndex = 0
         self.Action_Div = [47, 47, 47, 47, 47, 47, 47, 47]  # 93, 93, 93, 94
         self.MaxActIndex = len(self.Action_Div)  # V3_1 4
+
+    def do_simulation(self, ctrl, n_frames):
+        # self.data.ctrl[:] = ctrl
+        self.sim.data.ctrl[:] = ctrl
+        for _ in range(n_frames):
+            # mujoco.mj_step(self.model, self.data)
+            self.sim.step()
+        if self.Render:
+            # self.viewer.sync()
+            self.viewer.render()
 
     def reset(self):
         """将环境重置为初始状态，并返回一个初始状态；在环境中有随机性的时候，需要注意每次重置后要保证与之前的环境相互独立
         """
         # self.theMouse.sim.set_state(self.theMouse.sim_state)  # Go to initializing
         self.ActionIndex = 0
-        self.theMouse.initializing()
+        self.sim.set_state(self.sim_state)
+        self.imu_pos = deque([])
+        self.imu_quat = deque([])
+        self.imu_vel = deque([])
+        self.imu_acc = deque([])
+        self.imu_gyro = deque([])
+        # self.theMouse.initializing()
+
         self._step = 0
         for i in range(500):
             ctrlData = [0.0, 1.5, 0.0, 1.5, 0.0, -1.2, 0.0, -1.2, 0, 0, 0, 0]
-            self.theMouse.runStep(ctrlData)  # 此处有个内置的render
+            self.do_simulation(ctrlData, n_frames=1)  # 此处有个内置的render
         #  sth in initializing should be done TODO
         self.theController.reset()
         self.States_Init()
@@ -75,7 +117,8 @@ class RatRL(gym.Env):
         self.Action_Pre = [1., 1., 1., 1.]
 
     def render(self, mode='human'):
-        self.theMouse.viewer.render()
+        # self.theMouse.viewer.render()
+        pass
 
     def close(self):
         """一些环境数据的释放可以在该函数中实现
@@ -88,12 +131,12 @@ class RatRL(gym.Env):
         return
 
     def TimestepProcess(self):
-        vel_dir = -list(self.theMouse.vel)[1]
+        vel_dir = -list(self.vel)[1]
         self.vel_list.append(vel_dir)
 
-        vel = self.theMouse.vel
+        vel = self.vel
         self.vels.append(vel)
-        gyro = self.theMouse.gyro
+        gyro = self.gyro
         self.gyros.append(gyro)
 
 
@@ -146,12 +189,11 @@ class RatRL(gym.Env):
         return s, r, self.done, info
 
     def step(self, action, LegCal=False):
-        """环境的主要驱动函数，主逻辑将在该函数中实现。该函数可以按照时间轴，固定时间间隔调用
-
-        参数:
+        """
+        Para:
             action (object): an action provided by the agent
 
-        返回值:
+        Return:
             observation (object): agent对环境的观察，在本例中，直接返回环境的所有状态数据
             reward (float) : 奖励值，agent执行行为后环境反馈
             done (bool): 该局游戏时候结束，在本例中，只要自己被吃，该局结束
@@ -165,11 +207,19 @@ class RatRL(gym.Env):
             ActionSignal = (np.array(action) + 1.0) / 2
 
             tCtrlData = self.theController.runStep(ActionSignal)  # No Spine
+            # self.theMouse.runStep(tCtrlData, legposcal=LegCal)
+            self.do_simulation(tCtrlData, self.frame_skip)
+            # imudata
+            pos = self.sim.data.sensordata[16:16 + 3]  # com_pos from imu    imu_pos
+            self.imu_pos.append(list(pos))
+
+            self.pos = list(pos)
+            self.quat = list(self.sim.data.sensordata[19:19 + 4])
+            self.vel = list(self.sim.data.sensordata[23:23 + 3])
+            self.acc = list(self.sim.data.sensordata[26:26 + 3])
+            self.gyro = list(self.sim.data.sensordata[29:29 + 3])
 
             self.TimestepProcess()
-            self.theMouse.runStep(tCtrlData, legposcal=LegCal)
-            if self.Render:
-                self.render()
 
         self.ActionProcess()
 
@@ -212,10 +262,11 @@ if __name__ == '__main__':
 
     RUN_STEPS = 4000
     # RUN_STEPS = 50  # Half Per Action
-    SceneName = "../models/dynamic_4l_t3.xml"
+    # SceneName = "../models/dynamic_4l_t3.xml"
     # SceneName = "../models/dynamic_4l_t3_Change.xml"
-    # SceneName = "../models/scene_test3.xml"
     # SceneName = "../models/scene_test1.xml"
+    # SceneName = "../models/scene_test3.xml"
+    SceneName = "../models/scene_S4_stair.xml"
 
     env = RatRL(SceneName, Render=RENDER)
     R = []

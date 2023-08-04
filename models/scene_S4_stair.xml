@@ -1,6 +1,7 @@
 <mujoco>
 
-    <include file="basic_scene_Change.xml" />
+    <include file="basic_scene.xml" />
+<!--    <include file="basic_scene_Change.xml" />-->
     <include file="leg_fl_assets/fl_t3_stl_assets.xml"/>
     <include file="leg_fr_assets/fr_t3_stl_assets.xml"/>
     <include file="leg_rl_assets/rl_t3_stl_assets.xml"/>
