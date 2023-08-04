@@ -1,7 +1,4 @@
-# from RatEnv.RL_wrapper3_Connect import RatRL
-from RatEnv.RL_wrapper2_Dir import RatRL
-# from RatEnv.RL_wrapper2_MujoEnv_Compare import RatRL
-# from RatEnv.RL_wrapper2 import RatRL
+from RatEnv.RL_wrapper3_Connect import RatRL
 import gym
 from stable_baselines3 import PPO
 # from stable_baselines3 import SAC
@@ -14,26 +11,25 @@ from Tools.DataRecorder import DATA_Recorder
 RENDER = True
 
 if __name__ == '__main__':
-    SceneFile = "../models/dynamic_4l_t3_Change.xml"
-    MODELPATH = "data/S0_PPO_Native_073"
+    # SceneFile = "../models/dynamic_4l_t3.xml"
+    # MODELPATH = "Local_Data/S0_PPO_100"
+    # MODELPATH = "Local_Logs/S0_PPO_101/NAME_600000_steps"
 
 
-    # SceneFile = "../models/scene_test1.xml"
+    SceneFile = "../models/Scenario1_Planks.xml"
+    MODELPATH = "Local_Logs/S1_PPO_101/NAME_800000_steps"
     # MODELPATH = "data/S1_PPO_Native_056"
-    # MODELPATH = "data/S1_PPO_NativeStime_083"
-    # MODELPATH = "data/S1_SAC_NativeStime_084"
-    # MODELPATH = "data/S1_A2C_NativeStime_085"
 
-    # SceneFile = "../models/scene_test2.xml"  # S2
+    # SceneFile = "../models/Scenario2_Uphill.xml"  # S2
     # MODELPATH = "data/S2_PPO_Native_063"
     # # Failled up
 
     # SceneFile = "../models/scene_test2pro.xml"  # S2
 
-    # SceneFile = "../models/scene_test3.xml"  # 3
+    # SceneFile = "../models/Scenario3_Logs.xml"  # 3
     # MODELPATH = "data/S3_PPO_Native_058"
 
-    # SceneFile = "../models/scene_S4_stair.xml"
+    # SceneFile = "../models/Scenario4_Stairs.xml"
     # MODELPATH = "data/S4_PPO_Native_072"
 
     Recorder = DATA_Recorder()
@@ -55,7 +51,7 @@ if __name__ == '__main__':
 
         action, _states = model.predict(obs, deterministic=True)
         obs, rewards, dones, info = vec_env.step(action)
-        # print(info)
+        print(action)
         # print(vec_env.envs[0].pos)
         # vec_env.render()
         Recorder.update(vec_env.envs[0])

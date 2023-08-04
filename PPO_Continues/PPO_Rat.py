@@ -83,16 +83,16 @@ if __name__ == '__main__':
     SceneFile = "../models/dynamic_4l_t3.xml"
     SceneName = "PlaneNPPO"  # Plane S0
 
-    # SceneFile = "../models/scene_test1.xml"  # Now: 2
+    # SceneFile = "../models/Scenario1_Planks.xml"  # Now: 2
     # SceneName = "S1NPPO"  # SceneName = "S1"
     #
-    # SceneFile = "../models/scene_test2.xml"  #Now: 2
+    # SceneFile = "../models/Scenario2_Uphill.xml"  #Now: 2
     # SceneName = "S2"
 
-    # SceneFile = "../models/scene_test3.xml"  # Now: 3
+    # SceneFile = "../models/Scenario3_Logs.xml"  # Now: 3
     # SceneName = "S3"
 
-    # SceneFile = "../models/scene_S4_stair.xml"
+    # SceneFile = "../models/Scenario4_Stairs.xml"
     # SceneName = "stairNPPO"
 
     ##################################################################################################

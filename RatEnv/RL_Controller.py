@@ -66,8 +66,8 @@ class MouseController(object):
         self.curStep = 0  # Spine
 
     def reset(self):
-        self.trgXList = [[], [], [], []]
-        self.trgYList = [[], [], [], []]
+        # self.trgXList = [[], [], [], []]
+        # self.trgYList = [[], [], [], []]
         self.curStep = 0  # Spine
 
     def getLegCtrl(self, leg_M, curStep, leg_ID, ActionSignal):
@@ -90,8 +90,8 @@ class MouseController(object):
         trg_x = currentPos[0]
         trg_y = currentPos[1]
 
-        self.trgXList[leg_ID].append(trg_x)
-        self.trgYList[leg_ID].append(trg_y)
+        # self.trgXList[leg_ID].append(trg_x)
+        # self.trgYList[leg_ID].append(trg_y)
 
         tX = math.cos(turnAngle) * trg_x - math.sin(turnAngle) * trg_y  # 进行倾角纠正，得到准确的末端点
         tY = math.cos(turnAngle) * trg_y + math.sin(turnAngle) * trg_x

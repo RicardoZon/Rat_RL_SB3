@@ -16,14 +16,14 @@ if __name__ == '__main__':
     # NAME = "S0_SAC_NativeStime_104"
     # NAME = "S0_A2C_NativeStime_105"
 
-    # SceneFile = "../models/scene_test1.xml"  # S1
+    # SceneFile = "../models/Scenario1_Planks.xml"  # S1
     # NAME = "S1_PPO_NativeStime_083"
-    SceneFile = "../models/scene_test2.xml"  # S2  Spe
+    SceneFile = "../models/Scenario2_Uphill.xml"  # S2  Spe
     NAME = "S2_PPO_Native_114"
-    # SceneFile = "../models/scene_test3.xml"  # S3
+    # SceneFile = "../models/Scenario3_Logs.xml"  # S3
     # NAME = "S3_PPO_Native_091"
 
-    # SceneFile = "../models/scene_S4_stair.xml"  # S4
+    # SceneFile = "../models/Scenario4_Stairs.xml"  # S4
     # NAME = "S4_PPO_Native_096"
 
     warnings.filterwarnings("ignore")
