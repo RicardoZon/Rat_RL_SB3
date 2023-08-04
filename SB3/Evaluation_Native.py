@@ -19,22 +19,22 @@ if __name__ == '__main__':
     # MODELPATH = "Local_Data/S0_PPO_Native_073"
 
 
-    SceneFile = "../models/scene_test1.xml"
+    SceneFile = "../models/Scenario1_Planks.xml"
     MODELPATH = "Local_Data/S1_PPO_102"
     # MODELPATH = "Local_Data/S1_PPO_NativeStime_083"
     # MODELPATH = "Local_Data/S1_SAC_NativeStime_084"
     # MODELPATH = "Local_Data/S1_A2C_NativeStime_085"
 
-    # SceneFile = "../models/scene_test2.xml"  # S2
+    # SceneFile = "../models/Scenario2_Uphill.xml"  # S2
     # MODELPATH = "Local_Data/S2_PPO_Native_114"
     # # Failled up
 
     # SceneFile = "../models/scene_test2pro.xml"  # S2
 
-    # SceneFile = "../models/scene_test3.xml"  # 3
+    # SceneFile = "../models/Scenario3_Logs.xml"  # 3
     # MODELPATH = "data/S3_PPO_Native_058"
 
-    # SceneFile = "../models/scene_S4_stair.xml"
+    # SceneFile = "../models/Scenario4_Stairs.xml"
     # MODELPATH = "data/S4_PPO_Native_072"
 
     Recorder = DATA_Recorder()

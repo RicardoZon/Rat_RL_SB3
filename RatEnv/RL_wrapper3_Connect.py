@@ -13,10 +13,6 @@ from collections import deque
 class RatRL(gym.Env):
     def __init__(self, xml_file: str, Render=False, timestep=0.002):
         super(RatRL, self).__init__()
-        # self.action_space = spaces.
-        # self.observation_space=
-
-
         # Wrapper
         high = np.array([np.inf] * 12).astype(np.float32)
         self.action_space = spaces.Box(
@@ -28,11 +24,7 @@ class RatRL(gym.Env):
         # self._max_episode_steps = 50*2  # V3_1 T/4
         self._max_episode_steps = 50 * 4  # V3_2 T/8  100*
 
-        parser = argparse.ArgumentParser("Description.")
-        parser.add_argument('--fre', default=0.67,
-                            type=float, help="Gait stride")
-        args = parser.parse_args()
-
+        fre = 0.67
         # self.theMouse = SimModel(self.SceneName, Render=Render)
         self.model = load_model_from_path(xml_file)
         self.sim = MjSim(self.model)
@@ -49,7 +41,7 @@ class RatRL(gym.Env):
         self.frame_skip = 1
         self._timestep = self.model.opt.timestep  # Default = 0.002s per timestep
         self.dt = self._timestep * self.frame_skip  # dt = 0.01s
-        self.theController = MouseController(args.fre, dt=self.dt)
+        self.theController = MouseController(fre, dt=self.dt)
 
         self.imu_pos = deque([])
         self.imu_quat = deque([])
@@ -91,30 +83,24 @@ class RatRL(gym.Env):
             ctrlData = [0.0, 1.5, 0.0, 1.5, 0.0, -1.2, 0.0, -1.2, 0, 0, 0, 0]
             self.do_simulation(ctrlData, n_frames=1)  # 此处有个内置的render
         #  sth in initializing should be done TODO
-        self.theController.reset()
-        self.States_Init()
+        self.theController.curStep = 0  # Controller Reset
+        self.theController.trgXList = [[], [], [], []]
+        self.theController.trgYList = [[], [], [], []]
+        self.posY_Dir_pre = 0
 
-        # print("Reset")
+        self.N_StepPerT = self.theController.SteNum  # 373
+
+        self.vel_list = []
+        self.vels = deque([])
+        self.gyros = deque([])
+        self.action = [1., 1., 1., 1.]
+        self.Action_Pre = [1., 1., 1., 1.]
 
         # 是否需要hot up？ TODO
         action_hot = [1., 1., 1., 1.]
         self.done = False
         s, _, _, _ = self.step(action_hot)
         return s
-
-    def States_Init(self):
-        self.posY_Dir_pre = 0
-
-        self.N_StepPerT = self.theController.SteNum  # 373
-        # Connect Version
-        self.vel_list = []
-
-        self.vels = deque([])
-        self.gyros = deque([])
-
-        # For States
-        self.action = [1., 1., 1., 1.]
-        self.Action_Pre = [1., 1., 1., 1.]
 
     def render(self, mode='human'):
         # self.theMouse.viewer.render()
@@ -130,16 +116,6 @@ class RatRL(gym.Env):
         """
         return
 
-    def TimestepProcess(self):
-        vel_dir = -list(self.vel)[1]
-        self.vel_list.append(vel_dir)
-
-        vel = self.vel
-        self.vels.append(vel)
-        gyro = self.gyro
-        self.gyros.append(gyro)
-
-
     def ActionProcess(self):
         # pos = self.theMouse.pos
         # posY_Dir = -pos[1]
@@ -150,7 +126,6 @@ class RatRL(gym.Env):
 
         vels_mean = np.array(self.vels).mean(axis=0)
         gyros_mean = np.array(self.gyros).mean(axis=0)
-
         reward = -vels_mean[1] * 4
 
         # self.rat = self.FFTProcess(np.array(self.gyros).transpose()[1])
@@ -219,10 +194,14 @@ class RatRL(gym.Env):
             self.acc = list(self.sim.data.sensordata[26:26 + 3])
             self.gyro = list(self.sim.data.sensordata[29:29 + 3])
 
-            self.TimestepProcess()
+            vel_dir = -list(self.vel)[1]
+            self.vel_list.append(vel_dir)
+            vel = self.vel
+            self.vels.append(vel)
+            gyro = self.gyro
+            self.gyros.append(gyro)
 
         self.ActionProcess()
-
         self.ActionIndex = (self.ActionIndex + 1) % self.MaxActIndex  # Go to next Action Piece
 
         self._step = self._step + 1
@@ -264,9 +243,9 @@ if __name__ == '__main__':
     # RUN_STEPS = 50  # Half Per Action
     # SceneName = "../models/dynamic_4l_t3.xml"
     # SceneName = "../models/dynamic_4l_t3_Change.xml"
-    # SceneName = "../models/scene_test1.xml"
-    # SceneName = "../models/scene_test3.xml"
-    SceneName = "../models/scene_S4_stair.xml"
+    # SceneName = "../models/Scenario1_Planks.xml"
+    # SceneName = "../models/Scenario3_Logs.xml"
+    SceneName = "../models/Scenario4_Stairs.xml"
 
     env = RatRL(SceneName, Render=RENDER)
     R = []

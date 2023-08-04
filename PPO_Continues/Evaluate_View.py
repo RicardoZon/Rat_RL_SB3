@@ -17,17 +17,17 @@ SceneFile = "../models/dynamic_4l_t3.xml"
 ACTORPATH = "./data_train/PPO_Rat_env_Plane_number_57.pth"
 SceneName = "Plane"
 
-# SceneFile = "../models/scene_test1.xml"
+# SceneFile = "../models/Scenario1_Planks.xml"
 # ACTORPATH = "./data_train/PPO_Rat_env_S1_number_60_BEST.pth"
 # SceneName = "S1"
 
-# SceneFile = "../models/scene_test2.xml"
+# SceneFile = "../models/Scenario2_Uphill.xml"
 # ACTORPATH = "./data_train/PPO_Rat_env_S2_number_62_BEST.pth"
 
 # SceneFile = "../models/scene_test2pro.xml"
 # ACTORPATH = "./data_train/PPO_Rat_env_S2P_number_64.pth"
 
-# SceneFile = "../models/scene_test3.xml"
+# SceneFile = "../models/Scenario3_Logs.xml"
 # ACTORPATH = "./data_train/PPO_Rat_env_S3_number_67.pth"
 # SceneName = "S3"
 
