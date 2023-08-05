@@ -10,7 +10,7 @@ import time
 import numpy as np
 from collections import deque
 
-
+# For Validation 57, 60
 class SimModel(object):
     def __init__(self, xml_file: str, Render=False):
         super(SimModel, self).__init__()
@@ -187,7 +187,6 @@ class RatRL(gym.Env):
             ActionSignal = (np.array(action) + 1.0) / 2
 
             tCtrlData = self.theController.runStep(ActionSignal)  # No Spine
-            self.do_simulation(tCtrlData, n_frames=self.frame_skip)
 
             vel_dir = -list(self.vel)[1]
             self.vel_list.append(vel_dir)
@@ -195,6 +194,8 @@ class RatRL(gym.Env):
             self.vels.append(vel)
             gyro = self.gyro
             self.gyros.append(gyro)
+
+            self.do_simulation(tCtrlData, n_frames=self.frame_skip)
 
         # pos = self.theMouse.pos
         # posY_Dir = -pos[1]

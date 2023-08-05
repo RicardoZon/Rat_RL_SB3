@@ -9,10 +9,10 @@ RENDER_TRAIN = False
 
 if __name__ == '__main__':
     # SceneFile = "../models/dynamic_4l_t3.xml"
-    # NAME = "S0_PPO_100"  # Plane S0
+    # NAME = "S0_PPO_105"  # Plane S0
 
     # SceneFile = "../models/Scenario1_Planks.xml"  # S1
-    # NAME = "S1_PPO_101"
+    # NAME = "S1_PPO_106"
 
     # SceneFile = "../models/Scenario2_Uphill.xml"  # S2
     # NAME = "S2_PPO_103"
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     # NAME = "S3_PPO_104"
 
     SceneFile = "../models/Scenario4_Stairs.xml"  # S4
-    NAME = "S4_PPO_104"
+    NAME = "S4_PPO_107"
 
     checkpoint_callback = CheckpointCallback(
         save_freq=200_000,

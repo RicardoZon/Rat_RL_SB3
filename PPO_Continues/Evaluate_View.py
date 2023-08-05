@@ -9,17 +9,19 @@ from ppo_continuous import PPO_continuous
 from collections import deque
 from Tools.PlotTool import plot_simple
 import scipy.io as scio
-from RatEnv.RL_wrapper3_Connect import RatRL
+from RatEnv.RL_wrapper3_Connect_Resume import RatRL
+# from RatEnv.RL_wrapper3_Connect import RatRL
 from PPO_Rat import evaluate_policy
 from Tools.DataRecorder import DATA_Recorder
+import time
 
-SceneFile = "../models/dynamic_4l_t3.xml"
-ACTORPATH = "./data_train/PPO_Rat_env_Plane_number_57.pth"
-SceneName = "Plane"
+# SceneFile = "../models/dynamic_4l_t3.xml"
+# ACTORPATH = "./Local_Data/PPO_Rat_env_Plane_number_57.pth"
+# SceneName = "Plane"
 
-# SceneFile = "../models/Scenario1_Planks.xml"
-# ACTORPATH = "./data_train/PPO_Rat_env_S1_number_60_BEST.pth"
-# SceneName = "S1"
+SceneFile = "../models/Scenario1_Planks.xml"
+ACTORPATH = "./Local_Data/PPO_Rat_env_S1_number_60_BEST.pth"
+SceneName = "S1"
 
 # SceneFile = "../models/Scenario2_Uphill.xml"
 # ACTORPATH = "./data_train/PPO_Rat_env_S2_number_62_BEST.pth"
@@ -114,6 +116,7 @@ if __name__ == '__main__':
         s = state_norm(s, update=False)  # During the evaluating,update=False
     done = False
     episode_reward = 0
+    time_start = time.time()
     while not done:
         a = agent.evaluate(s)  # We use the deterministic policy during the evaluating
         if args.policy_dist == "Beta":
@@ -121,7 +124,8 @@ if __name__ == '__main__':
         else:
             action = a
         # action = [1., 1., 1., 1.]
-        s_, r, done, _ = env_evaluate.step(action, Render=RENDER_EVAL, LegCal=True)
+        s_, r, done, _ = env_evaluate.step(action, LegCal=True)
+        # s_, r, done, _ = env_evaluate.step(action, LegCal=True, Render=True)
         # env.render()  # Render
         if args.use_state_norm:
             s_ = state_norm(s_, update=False)
@@ -134,10 +138,11 @@ if __name__ == '__main__':
         print([action, r])
         actions.append(action)
         rewards.append(r)
+    print(time.time()-time_start)
 
 
     print(episode_reward)
-    print("Time:{}--Pos:{}".format(env_evaluate.theMouse.getTime(), env_evaluate.theMouse.pos))
+    # print("Time:{}--Pos:{}".format(env_evaluate.theMouse.getTime(), env_evaluate.theMouse.pos))
     gyros_mean = np.array(gyros_mean)
 
     # plot_simple([])
@@ -168,8 +173,8 @@ if __name__ == '__main__':
     # FileName = "actions_" + SceneName
     # scio.savemat(FileName + '.mat', {'actions': Acts})  # 写入mat文件
 
-    RECORD = DATA_Recorder()
-    RECORD.savePath_TOSIM("trag_S1_E60Best", env_evaluate.theMouse)
+    # RECORD = DATA_Recorder()
+    # RECORD.savePath_TOSIM("trag_S1_E60Best", env_evaluate.theMouse)
 
 
 

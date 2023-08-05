@@ -11,13 +11,13 @@ from Tools.DataRecorder import DATA_Recorder
 RENDER = True
 
 if __name__ == '__main__':
-    # SceneFile = "../models/dynamic_4l_t3.xml"
-    # MODELPATH = "Local_Data/S0_PPO_100"
+    SceneFile = "../models/dynamic_4l_t3.xml"
+    MODELPATH = "Local_Data/S0_PPO_105"
     # MODELPATH = "Local_Logs/S0_PPO_101/NAME_600000_steps"
 
 
-    SceneFile = "../models/Scenario1_Planks.xml"
-    MODELPATH = "Local_Logs/S1_PPO_101/NAME_800000_steps"
+    # SceneFile = "../models/Scenario1_Planks.xml"
+    # MODELPATH = "Local_Logs/S1_PPO_101/NAME_800000_steps"
     # MODELPATH = "data/S1_PPO_Native_056"
 
     # SceneFile = "../models/Scenario2_Uphill.xml"  # S2

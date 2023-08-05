@@ -5,8 +5,8 @@ from normalization import Normalization, RewardScaling
 from replaybuffer import ReplayBuffer
 from ppo_continuous import PPO_continuous
 
-# from RatEnv.RL_wrapper3_Connect import RatRL
-from RatEnv.Wrapper_Dumpped.RL_wrapper2 import RatRL
+from RatEnv.RL_wrapper3_Connect import RatRL
+# from RatEnv.Wrapper_Dumpped.RL_wrapper2 import RatRL
 print("Warpper 2 Native Action Framework")
 
 
@@ -29,7 +29,7 @@ def evaluate_policy(args, env, agent, state_norm, Render=False):
             else:
                 action = a
             # print(action)
-            s_, r, done, _ = env.step(action, Render=Render)
+            s_, r, done, _ = env.step(action)
             # env.render()  # Render
             if args.use_state_norm:
                 s_ = state_norm(s_, update=False)
@@ -42,14 +42,14 @@ def evaluate_policy(args, env, agent, state_norm, Render=False):
 
 def parserdefault():
     parser = argparse.ArgumentParser("Hyperparameters Setting for PPO-continuous")
-    parser.add_argument("--max_train_steps", type=int, default=int(2e7), help=" Maximum number of training steps")  # 3e6  DIV8
-    parser.add_argument("--evaluate_freq", type=float, default=8192,
+    parser.add_argument("--max_train_steps", type=int, default=int(2e6), help=" Maximum number of training steps")  # 3e6  DIV8
+    parser.add_argument("--evaluate_freq", type=float, default=2048,
                         help="Evaluate the policy every 'evaluate_freq' steps")  # 2048 FOR DIV8
     parser.add_argument("--save_freq", type=int, default=5, help="Save frequency")
     parser.add_argument("--policy_dist", type=str, default="Gaussian", help="Beta or Gaussian")
-    parser.add_argument("--batch_size", type=int, default=8192, help="Batch size")  # 2048  # 1024 FOR DIV8
-    parser.add_argument("--mini_batch_size", type=int, default=256, help="Minibatch size")  # 64 DIV8
-    parser.add_argument("--hidden_width", type=int, default=256,  # 64 DIV8
+    parser.add_argument("--batch_size", type=int, default=1024, help="Batch size")  # 2048  # 1024 FOR DIV8
+    parser.add_argument("--mini_batch_size", type=int, default=64, help="Minibatch size")  # 64 DIV8
+    parser.add_argument("--hidden_width", type=int, default=64,  # 64 DIV8
                         help="The number of neurons in hidden layers of the neural network")
     parser.add_argument("--lr_a", type=float, default=3e-4, help="Learning rate of actor")
     parser.add_argument("--lr_c", type=float, default=3e-4, help="Learning rate of critic")
@@ -73,15 +73,14 @@ def parserdefault():
 
 if __name__ == '__main__':
     args = parserdefault()
-    # main(args, number=3)
-    RESUME = True
-    ACTORPATH = "./data_train/PPO_Rat_env_PlaneNPPO_number_108.pth"
+    RESUME = False
+    # ACTORPATH = "./data_train/PPO_Rat_env_PlaneNPPO_number_108.pth"
 
-    number = 112
+    number = 120
     print("Number="+str(number))
 
     SceneFile = "../models/dynamic_4l_t3.xml"
-    SceneName = "PlaneNPPO"  # Plane S0
+    SceneName = "S0_PPO"  # Plane S0
 
     # SceneFile = "../models/Scenario1_Planks.xml"  # Now: 2
     # SceneName = "S1NPPO"  # SceneName = "S1"
@@ -118,7 +117,7 @@ if __name__ == '__main__':
     agent = PPO_continuous(args)
 
     # Build a tensorboard
-    writer = SummaryWriter(log_dir='runs/PPO_Rat/env_{}_{}_number_{}'.format(SceneName, args.policy_dist, number))
+    writer = SummaryWriter(log_dir='Local_Runs/PPO_Rat/env_{}_{}_number_{}'.format(SceneName, args.policy_dist, number))
 
     state_norm = Normalization(shape=args.state_dim)  # Trick 2:state normalization
     if args.use_reward_norm:  # Trick 3:reward normalization
@@ -127,13 +126,13 @@ if __name__ == '__main__':
         reward_scaling = RewardScaling(shape=1, gamma=args.gamma)
 
     # Load new
-    if RESUME:
-        checkpoint = torch.load(ACTORPATH)
-        agent.actor.load_state_dict(checkpoint['state_dict_actor'])
-        agent.optimizer_actor.load_state_dict(checkpoint['optimizer_actor'])
-        agent.critic.load_state_dict(checkpoint['state_dict_critic'])
-        agent.optimizer_critic.load_state_dict(checkpoint['optimizer_critic'])
-        state_norm.running_ms = checkpoint['state_norm_running']
+    # if RESUME:
+    #     checkpoint = torch.load(ACTORPATH)
+    #     agent.actor.load_state_dict(checkpoint['state_dict_actor'])
+    #     agent.optimizer_actor.load_state_dict(checkpoint['optimizer_actor'])
+    #     agent.critic.load_state_dict(checkpoint['state_dict_critic'])
+    #     agent.optimizer_critic.load_state_dict(checkpoint['optimizer_critic'])
+    #     state_norm.running_ms = checkpoint['state_norm_running']
 
     while total_steps < args.max_train_steps:
         s = env.reset()
@@ -151,7 +150,7 @@ if __name__ == '__main__':
                 action = 2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
             else:
                 action = a
-            s_, r, done, _ = env.step(action, Render=RENDER_TRAIN)
+            s_, r, done, _ = env.step(action)
 
             if args.use_state_norm:
                 s_ = state_norm(s_)
@@ -200,7 +199,7 @@ if __name__ == '__main__':
                         # "state_norm_std": state_norm.running_ms.std,
                         "state_norm_running":state_norm.running_ms
                     }
-                    torch.save(state, './data_train/PPO_Rat_env_{}_number_{}.pth'.format(SceneName, number))
+                    torch.save(state, './Local_Data/PPO_Rat_env_{}_number_{}.pth'.format(SceneName, number))
                 # if evaluate_reward > max_eval_R:
                 #     max_eval_R = evaluate_reward
                 #     state = {

@@ -1,10 +1,10 @@
 import numpy as np
 import math
 
-from LegModel.forPath import LegPath
+from RatEnv.LegModel.forPath import LegPath
 # -----------------------------------------------------------
-from LegModel.foreLeg import ForeLegM
-from LegModel.hindLeg import HindLegM
+from RatEnv.LegModel.foreLeg import ForeLegM
+from RatEnv.LegModel.hindLeg import HindLegM
 
 class MouseController(object):
 	"""docstring for MouseController"""

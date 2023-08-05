@@ -5,7 +5,7 @@ import math
 from collections import deque
 import scipy.io as scio
 import time
-from Controller import MouseController
+from RatEnv.Controller import MouseController
 import argparse
 
 # 理念：
