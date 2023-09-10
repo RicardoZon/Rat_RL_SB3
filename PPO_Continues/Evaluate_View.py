@@ -41,7 +41,6 @@ RENDER_EVAL = True
 
 
 if __name__ == '__main__':
-    # SceneName = "S1"
     parser = argparse.ArgumentParser("Hyperparameters Setting for PPO-continuous")
     parser.add_argument("--max_train_steps", type=int, default=int(3e6), help=" Maximum number of training steps")
     parser.add_argument("--evaluate_freq", type=float, default=1024,
@@ -73,7 +72,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # env = RatRL(SceneFile)
-    env_evaluate = RatRL(SceneFile, Render=RENDER_EVAL)  # When evaluating the policy, we need to rebuild an environment
+    Recorder = DATA_Recorder()
+    env_evaluate = RatRL(SceneFile, Render=RENDER_EVAL, Recorder=Recorder)  # When evaluating the policy, we need to rebuild an environment
 
     args.state_dim = env_evaluate.observation_space.shape[0]
     args.action_dim = env_evaluate.action_space.shape[0]
@@ -100,16 +100,17 @@ if __name__ == '__main__':
     print("Step={}".format(checkpoint['total_steps']))
     agent.actor.load_state_dict(checkpoint['state_dict_actor'])
     state_norm.running_ms = checkpoint['state_norm_running']
-    actions = []
-    actions.append(args.action_dim*[1.0])  # Init Action
-    rewards = []
-
-
-    # agent.actor.eval()  # 不启用 BatchNormalization 和 Dropout
+    agent.actor.eval()  # 不启用 BatchNormalization 和 Dropout
     # evaluate_reward = evaluate_policy(args, env_evaluate, agent, state_norm, Render=RENDER_EVAL)
 
     gyros_mean = deque([])
     vels_mean = deque([])
+
+    # For Physics
+    Actions = []
+    # Actions.append(args.action_dim * [1.0])  # Init Action
+    rewards = []
+    Indexes = []
 
     s = env_evaluate.reset()
     if args.use_state_norm:
@@ -124,7 +125,7 @@ if __name__ == '__main__':
         else:
             action = a
         # action = [1., 1., 1., 1.]
-        s_, r, done, _ = env_evaluate.step(action, LegCal=True)
+        s_, r, done, info = env_evaluate.step(action, LegCal=True)
         # s_, r, done, _ = env_evaluate.step(action, LegCal=True, Render=True)
         # env.render()  # Render
         if args.use_state_norm:
@@ -136,8 +137,9 @@ if __name__ == '__main__':
         vels_mean.append(env_evaluate.Vels_mean)
 
         print([action, r])
-        actions.append(action)
+        Actions.append(action)
         rewards.append(r)
+        Indexes.append(info['ActionIndex'])
     print(time.time()-time_start)
 
 
@@ -150,7 +152,7 @@ if __name__ == '__main__':
     # New1
     import matplotlib.pyplot as plt
 
-    Acts = np.array(actions).transpose()
+    Acts = np.array(Actions).transpose()
     # times = np.arange(0, 200 * 0.002 * 46, 0.002 * 46)[0:200]
     times = np.arange(0, 200 * 0.002 * 46, 0.002 * 46)
 
@@ -173,8 +175,11 @@ if __name__ == '__main__':
     # FileName = "actions_" + SceneName
     # scio.savemat(FileName + '.mat', {'actions': Acts})  # 写入mat文件
 
-    # RECORD = DATA_Recorder()
-    # RECORD.savePath_TOSIM("trag_S1_E60Best", env_evaluate.theMouse)
+    # Recorder.savePath_Basic(ACTORPATH.split('/')[-1].split('.')[0])
+
+
+    # scio.savemat('ActionSeq' + ACTORPATH.split('/')[-1].split('.')[0] + '.mat',
+    #              {'Actions': Actions, 'Indexes': Indexes})  # 写入mat文件
 
 
 

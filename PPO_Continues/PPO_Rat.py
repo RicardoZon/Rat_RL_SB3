@@ -76,14 +76,14 @@ if __name__ == '__main__':
     RESUME = False
     # ACTORPATH = "./data_train/PPO_Rat_env_PlaneNPPO_number_108.pth"
 
-    number = 120
+    number = 121
     print("Number="+str(number))
 
-    SceneFile = "../models/dynamic_4l_t3.xml"
-    SceneName = "S0_PPO"  # Plane S0
+    # SceneFile = "../models/dynamic_4l_t3.xml"
+    # SceneName = "S0_PPO"  # Plane S0
 
-    # SceneFile = "../models/Scenario1_Planks.xml"  # Now: 2
-    # SceneName = "S1NPPO"  # SceneName = "S1"
+    SceneFile = "../models/Scenario1_Planks.xml"
+    SceneName = "S1_PPO"  # SceneName = "S1"
     #
     # SceneFile = "../models/Scenario2_Uphill.xml"  #Now: 2
     # SceneName = "S2"

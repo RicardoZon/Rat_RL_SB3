@@ -206,7 +206,7 @@ class RatRL(gym.Env):
         vels_mean = np.array(self.vels).mean(axis=0)
         gyros_mean = np.array(self.gyros).mean(axis=0)
 
-        reward = -vels_mean[1] * 4
+        reward = -vels_mean[1] * 4  # to -5
 
         # self.rat = self.FFTProcess(np.array(self.gyros).transpose()[1])
         # if self.rat < 0.6:
@@ -237,7 +237,7 @@ class RatRL(gym.Env):
         if self._step > self._max_episode_steps:
             self.done = True  # 超过了一定步数就重置一下环境
             # print("Out")
-        info = None
+        info = {}
 
         # info = self.vel_list
         # print(np.mean(info))
@@ -272,9 +272,9 @@ if __name__ == '__main__':
 
     RUN_STEPS = 4000
     # RUN_STEPS = 50  # Half Per Action
-    SceneName = "../models/dynamic_4l_t3.xml"
+    # SceneName = "../models/dynamic_4l_t3.xml"
     # SceneName = "../models/dynamic_4l_t3_Change.xml"
-    # SceneName = "../models/Scenario1_Planks.xml"
+    SceneName = "../models/Scenario1_Planks.xml"
     # SceneName = "../models/Scenario3_Logs.xml"
     # SceneName = "../models/Scenario4_Stairs.xml"
 

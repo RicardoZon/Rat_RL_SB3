@@ -56,7 +56,7 @@ class SimModel(object):
 
 
 class RatRL(gym.Env):
-    def __init__(self, xml_file, Render=False):
+    def __init__(self, xml_file, Render=False, Recorder=None):
         super(RatRL, self).__init__()
         # Wrapper
         high = np.array([np.inf] * 12).astype(np.float32)
@@ -98,6 +98,10 @@ class RatRL(gym.Env):
         self.ActionIndex = 0
         self.Action_Div = [47, 47, 47, 47, 47, 47, 47, 47]  # 93, 93, 93, 94
         self.MaxActIndex = len(self.Action_Div)
+
+        # Recorder
+        if Recorder:
+            self.Recorder = Recorder
 
     def do_simulation(self, ctrl, n_frames):
         self.sim.data.ctrl[:] = ctrl
@@ -197,6 +201,12 @@ class RatRL(gym.Env):
 
             self.do_simulation(tCtrlData, n_frames=self.frame_skip)
 
+            if self.Recorder:
+                # manually updata recorder
+                # TODO: write it as a callback
+                self.Recorder.update(self)
+                self.Recorder.ctrldata.append(self.sim.data.ctrl.copy())
+
         # pos = self.theMouse.pos
         # posY_Dir = -pos[1]
         # reward = posY_Dir - self.posY_Dir_pre
@@ -238,8 +248,14 @@ class RatRL(gym.Env):
         if self._step > self._max_episode_steps:
             self.done = True  # 超过了一定步数就重置一下环境
             # print("Out")
-        info = None
-
+        # info = None
+        info = {
+            "ActionIndex": self.ActionIndex,
+            # "reward_bias": reward_bias,
+            # "reward_holdon": reward_holdon,
+            # "sum_delta_a": sum_delta_a,
+            # "touch": contact_sensor
+        }
         # info = self.vel_list
         # print(np.mean(info))
 

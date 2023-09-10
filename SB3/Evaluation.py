@@ -11,30 +11,31 @@ from Tools.DataRecorder import DATA_Recorder
 RENDER = True
 
 if __name__ == '__main__':
-    SceneFile = "../models/dynamic_4l_t3.xml"
-    MODELPATH = "Local_Data/S0_PPO_105"
+    # SceneFile = "../models/dynamic_4l_t3.xml"
+    # MODELPATH = "Local_Data/S0_PPO_100"
     # MODELPATH = "Local_Logs/S0_PPO_101/NAME_600000_steps"
 
 
-    # SceneFile = "../models/Scenario1_Planks.xml"
+    SceneFile = "../models/Scenario1_Planks.xml"
     # MODELPATH = "Local_Logs/S1_PPO_101/NAME_800000_steps"
-    # MODELPATH = "data/S1_PPO_Native_056"
+    MODELPATH = "Local_Data/Wrapper3Div/S1_PPO_121"
 
     # SceneFile = "../models/Scenario2_Uphill.xml"  # S2
-    # MODELPATH = "data/S2_PPO_Native_063"
+    # MODELPATH = "Local_Data/S2_PPO_102"
     # # Failled up
 
     # SceneFile = "../models/scene_test2pro.xml"  # S2
 
     # SceneFile = "../models/Scenario3_Logs.xml"  # 3
-    # MODELPATH = "data/S3_PPO_Native_058"
+    # MODELPATH = "Local_Data/S3_PPO_103"
 
     # SceneFile = "../models/Scenario4_Stairs.xml"
-    # MODELPATH = "data/S4_PPO_Native_072"
+    # MODELPATH = "Local_Data/S4_PPO_104"
 
     Recorder = DATA_Recorder()
 
     env = RatRL(SceneFile, Render=RENDER)
+    # env.theController.spine_A = 30 * np.pi / 180  # SPine
     model = PPO.load(MODELPATH, env=env)
 
     # env = gym.make("Ant-v2")

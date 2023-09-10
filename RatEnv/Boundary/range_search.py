@@ -35,12 +35,16 @@ if __name__ == '__main__':
     m2_range = {"max": 1.57,
                 "min": -1.57}  # 2.01 ~ 120 Deg
 
-    legmodel = ForeLegM(fl_params)
-    # legmodel = HindLegM(hl_params)
+    legmodel_FL = ForeLegM(fl_params)
+    # legmodel_FL = HindLegM(hl_params)
 
-    H_range_FL = Search(legmodel)
-    H_range_HL = Search(legmodel)
+    H_range_FL = Search(legmodel_FL)
+    H_range_HL = Search(legmodel_FL)
     theController = MouseController(0.67, 0.002)
+    theController.pathStore.para_FU = [[0.005, -0.055], [0.02, 0.02]]
+    theController.pathStore.para_FD = [[0.005, -0.055], [0.02, 0.005]]
+    theController.pathStore.para_HU = [[0.01, -0.05], [0.03, 0.01]]
+    theController.pathStore.para_HD = [[0.01, -0.05], [0.03, 0.005]]
     for _ in range(theController.SteNum):
         ctrlData = theController.runStep([1., 1., 1., 1.])  # No Spine
 
@@ -55,11 +59,11 @@ if __name__ == '__main__':
     ax.set_aspect("equal")
     fig.show()
 
-    fig = plt.figure()
-    ax = plt.axes()
-    ax.scatter(H_range_FL[:, 0], H_range_FL[:, 1])
-    ax.plot(theController.trgXList[2], theController.trgYList[2], 'r')
-    fig.show()
+    # fig = plt.figure()
+    # ax = plt.axes()
+    # ax.scatter(H_range_FL[:, 0], H_range_FL[:, 1])
+    # ax.plot(theController.trgXList[2], theController.trgYList[2], 'r')
+    # fig.show()
 
     # scio.savemat('rangesearch_fl_kineYH.mat', {'H_range': H_range})
     # scio.savemat('rangesearch_hl_kineYH.mat', {'H_range': H_range})

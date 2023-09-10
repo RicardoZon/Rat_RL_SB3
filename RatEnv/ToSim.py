@@ -176,17 +176,22 @@ class SimModel(object):
 
 
 if __name__ == '__main__':
+	RENDER = True
+	# MODELPATH = "../models/dynamic_4l_t3.xml"
+	MODELPATH = "../models/Scenario1_Planks.xml"
+
 	RUN_STEPS = 10000
 	parser = argparse.ArgumentParser("Description.")
 	parser.add_argument('--fre', default=0.67,
 		type=float, help="Gait stride")
 	args = parser.parse_args()
 
-	theMouse = SimModel("../models/dynamic_4l_t3.xml", Render=True)
+	theMouse = SimModel(MODELPATH, Render=RENDER)
 	frame_skip = 1
 	dt = theMouse.model.opt.timestep*frame_skip
 
 	theController = MouseController(args.fre, timestep=dt)
+	theController.spine_A = 30 * np.pi / 180
 
 	for i in range(500):
 		ctrlData = [0.0, 1.5, 0.0, 1.5, 0.0, -1.2, 0.0,-1.2, 0,0,0,0]
@@ -199,15 +204,16 @@ if __name__ == '__main__':
 		ctrlData = theController.runStep()				# No Spine
 		#tCtrlData = theController.runStep_spine()		# With Spine
 		for _ in range(frame_skip):
-			theMouse.runStep(ctrlData, render=True)
+			theMouse.runStep(ctrlData, render=RENDER)
 		pos = theMouse.pos
 
 		v = (pos[1]-pos_pre[1])*(-4)/dt
 		# print(v)
 		# print(pos)
-		print(theMouse.sim.data.get_joint_qpos("knee1_fl"))
-		print(theMouse.sim.data.get_joint_qpos("ankle_fl"))
+		# print(theMouse.sim.data.get_joint_qpos("knee1_fl"))
+		# print(theMouse.sim.data.get_joint_qpos("ankle_fl"))
 
 	end = time.time()
 	timeCost = end-start
 	print("Time -> ", timeCost)
+	print(pos)

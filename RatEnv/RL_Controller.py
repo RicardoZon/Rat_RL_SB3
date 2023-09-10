@@ -15,8 +15,8 @@ class MouseController(object):
         PI = np.pi
         self.curStep = 0  # Spine
 
-        self.turn_F = -2 * PI / 180
-        self.turn_H = 5 * PI / 180
+        self.turn_F = -2 * PI / 180  # -2 * PI / 180 ---some = 0
+        self.turn_H = 5 * PI / 180  # 5 * PI / 180 --- some = 0
         self.pathStore = LegPath2()
         # [LF, RF, LH, RH]
         # --------------------------------------------------------------------- #
@@ -32,7 +32,7 @@ class MouseController(object):
         self.SteNum = int(1 / (self.dt * self.fre_cyc) / 2)  # /1.25)
         self.SteNum = 376  # 373+3 if  Div=8
         # print("SteNum ----> ", self.SteNum)
-        self.spinePhase = self.phaseDiff[2]
+        self.spinePhase = self.phaseDiff[2] - PI  # theta_spine=0, when theta_hl = pi
         # --------------------------------------------------------------------- #
         self.spine_A = 0  # 10 a_s = 2theta_s
         # print("angle --> ", self.spine_A)
@@ -105,9 +105,9 @@ class MouseController(object):
 
         return qVal
 
-    def getSpineVal(self, spineStep):
-        radian = 2 * np.pi * spineStep / self.SteNum
-        return self.spine_A * math.cos(radian - self.spinePhase)
+    def getSpineVal(self, spinestep):
+        radian = 2 * np.pi * spinestep / self.SteNum
+        return self.spine_A * math.cos(radian)  # 0-->1.0, pi-->-1
 
     # spinePhase = 2*np.pi*spineStep/self.SteNum
     # return self.spine_A*math.sin(spinePhase)
@@ -122,9 +122,13 @@ class MouseController(object):
         hindLeg_right_q = self.getLegCtrl(self.hl_right,
                                           self.curStep + self.stepDiff[3], 3, action[3])
 
-        spineStep = self.curStep  # + self.stepDiff[4]
-        spine = self.getSpineVal(spineStep)
-        # spine = 0
+        spineStep = (self.curStep + self.stepDiff[4]) % self.SteNum
+        if self.spine_A:
+            spine = self.getSpineVal(spineStep)
+            tail = -spine * np.pi / self.spine_A
+        else:
+            spine = 0
+            tail = 0
         self.curStep = (self.curStep + 1) % self.SteNum
 
         ctrlData = []
@@ -137,7 +141,5 @@ class MouseController(object):
         ctrlData.extend(foreLeg_right_q)
         ctrlData.extend(hindLeg_left_q)
         ctrlData.extend(hindLeg_right_q)
-        for i in range(3):
-            ctrlData.append(0)
-        ctrlData.append(spine)
+        ctrlData.extend([tail, 0, 0, spine])
         return ctrlData

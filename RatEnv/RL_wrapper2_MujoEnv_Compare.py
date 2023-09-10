@@ -44,8 +44,9 @@ class RatRL(gym.Env):
         self.init_state = self.sim.get_state()
         self.sim.set_state(self.init_state)
 
-        self._timestep = self.model.opt.timestep
         self.frame_skip = 1
+        self._timestep = 0.01  # Default 0.002
+        self.model.opt.timestep = self._timestep  # Default = 0.002s per timestep
         self.dt = self._timestep * self.frame_skip
         self._max_episode_steps = 10000 * 0.002 / self.dt  # 10000 for 0.002
 
@@ -145,6 +146,7 @@ class RatRL(gym.Env):
         S = [self.action,
              [reward_forward],
              vel, gyro, self.quat, contact_sensor]
+        # (8) + (1) + (3+3+4+4) = 23
         # S = [self.action,
         #      [reward_forward],
         #      vel, gyro, self.quat, contact_sensor]

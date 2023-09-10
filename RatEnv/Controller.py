@@ -28,9 +28,9 @@ class MouseController(object):
 		self.fre_cyc = fre  # 1.25#0.80
 		self.SteNum = int(1/(timestep*self.fre_cyc)/2)  # /1.25)   #  step/圈
 		print("----> ", self.SteNum)
-		self.spinePhase = self.phaseDiff[2]
+		self.spinePhase = self.phaseDiff[2] - PI  # theta_spine=0, when theta_hl = pi
 		# --------------------------------------------------------------------- #
-		self.spine_A =0  # 10 a_s = 2theta_s
+		self.spine_A = 0  # 10 a_s = 2theta_s
 		print("angle --> ", self.spine_A)
 		self.spine_A = self.spine_A*PI/180
 		# --------------------------------------------------------------------- #
@@ -76,9 +76,9 @@ class MouseController(object):
 		qVal = leg_M.pos_2_angle(tX, tY)
 		return qVal
 
-	def getSpineVal(self, spineStep):
-		radian = 2*np.pi * spineStep/self.SteNum
-		return self.spine_A*math.cos(radian-self.spinePhase)
+	def getSpineVal(self, spinestep):
+		radian = 2*np.pi * spinestep/self.SteNum
+		return self.spine_A*math.cos(radian)  # 0-->1.0, pi-->-1
 		# spinePhase = 2*np.pi*spineStep/self.SteNum
 		# return self.spine_A*math.sin(spinePhase)
 
@@ -92,14 +92,14 @@ class MouseController(object):
 		hindLeg_right_q = self.getLegCtrl(self.hl_right, 
 			self.curStep + self.stepDiff[3], 3)
 
-		spineStep = self.curStep #+ self.stepDiff[4]
+		spineStep = (self.curStep + self.stepDiff[4]) % self.SteNum
 		spine = self.getSpineVal(spineStep)
 		#spine = 0
 		self.curStep = (self.curStep + 1) % self.SteNum
+		tail = -spine * np.pi /self.spine_A
+		# spine = 0
 
 		ctrlData = []
-
-
 		# foreLeg_left_q = [1,0]
 		# foreLeg_right_q = [1,0]
 		# hindLeg_left_q = [-1,0]
@@ -108,8 +108,9 @@ class MouseController(object):
 		ctrlData.extend(foreLeg_right_q)
 		ctrlData.extend(hindLeg_left_q)
 		ctrlData.extend(hindLeg_right_q)
-		for i in range(3):
-			ctrlData.append(0)
-		ctrlData.append(spine)
+		ctrlData.extend([tail, 0, 0, spine])
+		# for i in range(3):
+		# 	ctrlData.append(0)
+		# ctrlData.append(spine)
 		return ctrlData
 		
