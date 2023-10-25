@@ -1,6 +1,7 @@
 <mujoco>
 
     <include file="basic_scene.xml" />
+<!--    <include file="basic_scene_Change.xml" />-->
     <include file="leg_fl_assets/fl_t3_stl_assets.xml"/>
     <include file="leg_fr_assets/fr_t3_stl_assets.xml"/>
     <include file="leg_rl_assets/rl_t3_stl_assets.xml"/>
@@ -23,10 +24,18 @@
     <worldbody>
         <light diffuse=".5 .5 .5" pos="0 -1.0 3" dir="0 0 -1"/>    
 
+        <geom type="box" pos="0 -0.3 0.00" size="1.5 0.15 0.020" rgba="1 0.5 0 1"/>
+        <geom type="box" pos="0 -0.6 0.01" size="1.5 0.15 0.010" rgba="1 0.5 0 1"/>
+        <geom type="box" pos="0 -0.9 0.02" size="1.5 0.15 0.010" rgba="1 0.5 0 1"/>
+        <geom type="box" pos="0 -1.2 0.03" size="1.5 0.15 0.010" rgba="1 0.5 0 1"/>
+        <geom type="box" pos="0 -1.5 0.04" size="1.5 0.15 0.010" rgba="1 0.5 0 1"/>
+        <geom type="box" pos="0 -1.8 0.05" size="1.5 0.15 0.010" rgba="1 0.5 0 1"/>
+        <geom type="box" pos="0 -2.1 0.06" size="1.5 0.15 0.010" rgba="1 0.5 0 1"/>
+        <geom type="box" pos="0 -2.4 0.06" size="1.5 0.40 0.010" rgba="1 0.5 0 1"/>
 
-        <geom type="box" pos="0 -0.3 0" size="0.4 0.1 0.005" rgba="1 0.5 0 1"/>
-        <geom type="box" pos="0 -0.5 0" size="0.2 0.05 0.010" rgba="1 0.5 0 1"/>
-        <geom type="box" pos="0 -0.7 0" size="0.2 0.05 0.010" rgba="1 0.5 0 1"/>
+        <!-- <geom type="box" pos="0 -0.3 0" size="0.8 0.05 0.010" rgba="1 0.5 0 1"/> -->
+        <!-- <geom type="box" pos="0 -0.5 0" size="0.8 0.05 0.010" rgba="1 0.5 0 1"/> -->
+        <!-- <geom type="box" pos="0 -0.7 0" size="0.8 0.05 0.010" rgba="1 0.5 0 1"/> -->
 
 
 

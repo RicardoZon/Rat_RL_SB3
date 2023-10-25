@@ -4,12 +4,13 @@ from stable_baselines3 import PPO
 from stable_baselines3 import SAC
 from stable_baselines3 import A2C
 from stable_baselines3.common.callbacks import CheckpointCallback
+import numpy as np
 
 RENDER_TRAIN = False
 
 if __name__ == '__main__':
     # SceneFile = "../models/dynamic_4l_t3.xml"
-    # NAME = "S0_PPO_120_B1"  # Plane S0
+    # NAME = "S0_PPO_Spine_200"  # Plane S0
     # NAME = "S0_PPO_120_B2"
     # NAME = "S0_PPO_120_B3"
 
@@ -19,18 +20,18 @@ if __name__ == '__main__':
     # NAME = "S1_PPO_121_B3"
 
     # SceneFile = "../models/Scenario2_Uphill.xml"  # S2
-    # NAME = "S2_PPO_122_B1"
+    # NAME = "S2_PPO_Spine_202"
     # NAME = "S2_PPO_122_B2"
     # NAME = "S2_PPO_122_B3"
 
 
     # SceneFile = "../models/Scenario3_Logs.xml"  # S3
-    # NAME = "S3_PPO_123_B1"
+    # NAME = "S3_PPO_Spine_203"
     # NAME = "S3_PPO_123_B2"
     # NAME = "S3_PPO_123_B3"
 
     # SceneFile = "../models/Scenario4_Stairs.xml"  # S4
-    # NAME = "S4_PPO_124_B1"
+    # NAME = "S4_PPO_Spine_204"
     # NAME = "S4_PPO_124_B2"
     # NAME = "S4_PPO_124_B3"
 
@@ -43,6 +44,7 @@ if __name__ == '__main__':
     )
 
     env = RatRL(SceneFile, Render=RENDER_TRAIN)
+    env.theController.spine_A = 30 * np.pi / 180  # SPine
     model = PPO("MlpPolicy", env, verbose=1, tensorboard_log="./Local_Rat_Tensorboard/Wrapper3Div/")
     # model = SAC("MlpPolicy", env, verbose=1, tensorboard_log="./Rat_Tensorboard/")
     # model = A2C("MlpPolicy", env, verbose=1, tensorboard_log="./Rat_Tensorboard/")

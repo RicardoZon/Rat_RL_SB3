@@ -8,7 +8,7 @@
     </sensor>
 
     <actuator>
-        <position name="m1_fl" gear="1" ctrllimited="true" ctrlrange="-3.00 3.00"  forcelimited="true" forcerange="-.4 .4" joint="m1_fl" kp="300"/>
-        <position name="m2_fl" gear="1" ctrllimited="true"  ctrlrange="-3.00 3.00 " forcelimited="true" forcerange="-0.4 0.4" joint="m2_fl" kp="300"/>
+        <position name="m1_fl" gear="1" ctrllimited="true" ctrlrange="-1.57 1.57"  forcelimited="true" forcerange="-.4 .4" joint="m1_fl" kp="300"/>
+        <position name="m2_fl" gear="1" ctrllimited="true"  ctrlrange="-1.57 1.57" forcelimited="true" forcerange="-0.4 0.4" joint="m2_fl" kp="300"/>
     </actuator>
 </mujoco>

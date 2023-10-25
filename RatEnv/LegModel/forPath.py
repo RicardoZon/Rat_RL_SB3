@@ -7,11 +7,15 @@ class LegPath(object):
 	def __init__(self, pathType="circle"):
 		super(LegPath, self).__init__()
 		# Trot
-		self.para_FU = [[0.00, -0.045], [0.03, 0.01]]
-		self.para_FD = [[0.00, -0.045], [0.03, 0.005]]
-		self.para_HU = [[0.00, -0.05], [0.03, 0.01]]
-		self.para_HD = [[0.00, -0.05], [0.03, 0.005]]
+		self.para_FU = [[-0.005, -0.045], [0.03, 0.01]]
+		self.para_FD = [[-0.005, -0.045], [0.03, 0.005]]
+		self.para_HU = [[0.00, -0.055], [0.03, 0.01]]
+		self.para_HD = [[0.00, -0.055], [0.03, 0.005]]
 
+		# self.para_FU = [[0.00, -0.045], [0.03, 0.01]]  # Wrapper3 Connect
+		# self.para_FD = [[0.00, -0.045], [0.03, 0.005]]
+		# self.para_HU = [[0.00, -0.05], [0.03, 0.01]]
+		# self.para_HD = [[0.00, -0.05], [0.03, 0.005]]
 
 		# self.para_FU = [[0.01, -0.045], [0.03, 0.01]]
 		# self.para_FD = [[0.01, -0.045], [0.03, 0.005]]
@@ -19,8 +23,6 @@ class LegPath(object):
 		# self.para_HD = [[0.00, -0.06], [0.03, 0.005]]
 
 	def getOvalPathPoint(self, radian, leg_flag, halfPeriod):
-		pathParameter = None
-		cur_radian = 0
 		if leg_flag == "F":
 			if radian < halfPeriod*math.pi:
 				pathParameter = self.para_FU

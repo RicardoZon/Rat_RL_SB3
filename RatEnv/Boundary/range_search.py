@@ -7,7 +7,9 @@ import scipy.io as scio
 
 from RatEnv.LegModel.foreLeg import ForeLegM
 from RatEnv.LegModel.hindLeg import HindLegM
-from RatEnv.RL_Controller import MouseController
+from RatEnv.Controller import MouseController
+from RatEnv.Controller import MouseControllerB
+from RatEnv.LegModel.forPath_Bezier import LegPath_Bezier
 
 def Search(legmodel):
     Y_range = np.arange(-0.08, 0.08, 0.001)
@@ -35,35 +37,63 @@ if __name__ == '__main__':
     m2_range = {"max": 1.57,
                 "min": -1.57}  # 2.01 ~ 120 Deg
 
+    turn_H = 5 * np.pi / 180
+
     legmodel_FL = ForeLegM(fl_params)
     # legmodel_FL = HindLegM(hl_params)
 
     H_range_FL = Search(legmodel_FL)
-    H_range_HL = Search(legmodel_FL)
-    theController = MouseController(0.67, 0.002)
-    theController.pathStore.para_FU = [[0.005, -0.055], [0.02, 0.02]]
-    theController.pathStore.para_FD = [[0.005, -0.055], [0.02, 0.005]]
-    theController.pathStore.para_HU = [[0.01, -0.05], [0.03, 0.01]]
-    theController.pathStore.para_HD = [[0.01, -0.05], [0.03, 0.005]]
+    theController = MouseController(SteNum=376)
+    theController.pathStore.para_FU = [[-0.005, -0.045], [0.03, 0.01]]
+    theController.pathStore.para_FD = [[-0.005, -0.045], [0.03, 0.005]]
+    # theController.pathStore.para_HU = [[0.005, -0.055], [0.03, 0.01]]
+    # theController.pathStore.para_HD = [[0.005, -0.055], [0.03, 0.005]]
+    # theController.pathBezier.Centers[0] = [0.000, -0.060]  # -0.050~-0.060
+    # theController.pathBezier.Centers[2] = [0.00, -0.065]  # -0.055~ -0.065
     for _ in range(theController.SteNum):
-        ctrlData = theController.runStep([1., 1., 1., 1.])  # No Spine
+        _ = theController.runStep()  # No Spine
 
+
+    # Bezier Simple
+    generator = LegPath_Bezier()
+    x_dataset = []
+    z_dataset = []
+    for p in np.arange(0, 2, 0.001):
+        [x, z] = generator.getOvalPathPoint(p, leg_ID=0)
+        x_dataset.append(x)
+        z_dataset.append(z)
 
     fig = plt.figure()
     ax = plt.axes()
     ax.scatter(H_range_FL[:, 0], H_range_FL[:, 1])
     ax.plot(theController.trgXList[0], theController.trgYList[0], 'r')
+    # ax.plot(x_dataset, z_dataset, 'r')
     ax.set_xlabel("y")
     ax.set_ylabel("z")
     # ax.scatter(Poses[:, 0], Poses[:, 1])
     ax.set_aspect("equal")
     fig.show()
 
-    # fig = plt.figure()
-    # ax = plt.axes()
-    # ax.scatter(H_range_FL[:, 0], H_range_FL[:, 1])
-    # ax.plot(theController.trgXList[2], theController.trgYList[2], 'r')
-    # fig.show()
-
     # scio.savemat('rangesearch_fl_kineYH.mat', {'H_range': H_range})
     # scio.savemat('rangesearch_hl_kineYH.mat', {'H_range': H_range})
+
+    legmodel_HL = HindLegM(hl_params)
+    H_range_HL = Search(legmodel_HL)
+    generator = LegPath_Bezier()
+    x_dataset = []
+    z_dataset = []
+    for p in np.arange(0, 2, 0.001):
+        [x, z] = generator.getOvalPathPoint(p, leg_ID=2)
+        x_dataset.append(x)
+        z_dataset.append(z)
+
+    fig = plt.figure()
+    ax = plt.axes()
+    ax.scatter(H_range_HL[:, 0], H_range_HL[:, 1])
+    ax.plot(theController.trgXList[2], theController.trgYList[2], 'r')
+    # ax.plot(x_dataset, z_dataset, 'r')
+    ax.set_xlabel("y")
+    ax.set_ylabel("z")
+    # ax.scatter(Poses[:, 0], Poses[:, 1])
+    ax.set_aspect("equal")
+    fig.show()

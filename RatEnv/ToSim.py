@@ -6,7 +6,9 @@ from collections import deque
 import scipy.io as scio
 import time
 from RatEnv.Controller import MouseController
+from RatEnv.Controller import MouseControllerB
 import argparse
+from mujoco_py.generated import const
 
 # 理念：
 # SimModel是对Mouse的虚拟模拟
@@ -177,21 +179,25 @@ class SimModel(object):
 
 if __name__ == '__main__':
 	RENDER = True
-	# MODELPATH = "../models/dynamic_4l_t3.xml"
-	MODELPATH = "../models/Scenario1_Planks.xml"
+	MODELPATH = "../models/dynamic_4l_t3.xml"
+	# MODELPATH = "../models/Scenario1_Planks.xml"
+	# MODELPATH = "../models/Scenario4_Stairs.xml"
+	# MODELPATH = "../models/Scenario4_Stairs_Sparse.xml"
 
-	RUN_STEPS = 10000
-	parser = argparse.ArgumentParser("Description.")
-	parser.add_argument('--fre', default=0.67,
-		type=float, help="Gait stride")
-	args = parser.parse_args()
+	RUN_STEPS = 40000
 
 	theMouse = SimModel(MODELPATH, Render=RENDER)
 	frame_skip = 1
 	dt = theMouse.model.opt.timestep*frame_skip
-
-	theController = MouseController(args.fre, timestep=dt)
-	theController.spine_A = 30 * np.pi / 180
+	fre_cyc = 0.67  # 1.25  # 0.80?
+	SteNum = int(1 / (dt * fre_cyc) / 2)  # /1.25)
+	theController = MouseController(SteNum=SteNum)
+	# theController.pathStore.para_FU = [[0.005, -0.045], [0.03, 0.01]]
+	# theController.pathStore.para_FD = [[0.005, -0.045], [0.03, 0.002]]
+	# theController.pathStore.para_HU = [[0.005, -0.055], [0.03, 0.025]]
+	# theController.pathStore.para_HD = [[0.005, -0.055], [0.03, 0.002]]
+	# theController.spine_A = 30 * np.pi / 180
+	# coms = deque(maxlen=600)  # Trace show
 
 	for i in range(500):
 		ctrlData = [0.0, 1.5, 0.0, 1.5, 0.0, -1.2, 0.0,-1.2, 0,0,0,0]
@@ -199,21 +205,28 @@ if __name__ == '__main__':
 	theMouse.initializing()
 	start = time.time()
 
-	for i in range(RUN_STEPS):
-		pos_pre = theMouse.pos.copy()
-		ctrlData = theController.runStep()				# No Spine
-		#tCtrlData = theController.runStep_spine()		# With Spine
-		for _ in range(frame_skip):
-			theMouse.runStep(ctrlData, render=RENDER)
-		pos = theMouse.pos
+	def run_tmp():
+		for i in range(RUN_STEPS):
+			pos_pre = theMouse.pos.copy()
+			ctrlData = theController.runStep()				# No Spine
+			#tCtrlData = theController.runStep_spine()		# With Spine
+			for _ in range(frame_skip):
+				theMouse.runStep(ctrlData, render=RENDER)
+			pos = theMouse.pos
 
-		v = (pos[1]-pos_pre[1])*(-4)/dt
-		# print(v)
-		# print(pos)
-		# print(theMouse.sim.data.get_joint_qpos("knee1_fl"))
-		# print(theMouse.sim.data.get_joint_qpos("ankle_fl"))
+			v = (pos[1]-pos_pre[1])*(-4)/dt
+			# print(v)
+			# print(pos)
+			# print(theMouse.sim.data.get_joint_qpos("knee1_fl"))
+			# print(theMouse.sim.data.get_joint_qpos("ankle_fl"))
 
+	run_tmp()
 	end = time.time()
 	timeCost = end-start
 	print("Time -> ", timeCost)
-	print(pos)
+	# print(pos)
+
+	'''
+	s_trap = theMouse.sim.get_state()
+	torch.save(s_trap, './XXX.pth')
+	'''

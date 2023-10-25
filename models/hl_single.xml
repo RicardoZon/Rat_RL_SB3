@@ -1,0 +1,38 @@
+<mujoco>
+    <include file="basic_scene.xml" />
+    <include file="leg_rl_assets/rl_t3_stl_assets.xml"/>
+
+    <asset>
+        <mesh name="head" file="stl-meshes/head_main.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="head_mounting" file="stl-meshes/head_bracket.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="main_body" file="stl-meshes/main_chest.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="spine_t1" file="stl-meshes/spine_t1.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="spine_t2" file="stl-meshes/spine_t2_zeroed.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="spine_t3" file="stl-meshes/spine_t3_zeroed.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="spine_t4" file="stl-meshes/spine_t4_zeroed.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="hip" file="stl-meshes/hip_zeroed.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="reel_sm" file="stl-meshes/reel_small.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="tail" file="stl-meshes/Tail_Unit.stl" scale="0.001 0.001 0.001"/>
+    </asset>
+
+    <worldbody>
+        <light diffuse=".5 .5 .5" pos="0 -1.0 3" dir="0 0 -1"/>
+        <geom type="plane" size="0 0 0.03" material="matplane" rgba="1 1 1 1"/>
+        <camera name="body_cam" mode="fixed" pos="20 0.1 0.05" euler="90 90 0" fovy="1"/>
+        <camera name="top camera" mode="fixed" pos="0 -1 30" euler="0 0 180" fovy="6"/>
+
+        <body name="fl" pos="0.0 0 0.1">
+                <include file="leg_rl_assets/rl_t3_asset_exp.xml"/>
+        </body>
+    </worldbody>
+
+    <contact>
+        <exclude body1="main_leg_rl" body2="servo2_rl"/>
+    </contact>
+    <include file="leg_rl_assets/rl_t3_tendon.xml"/>
+    <include file="leg_rl_assets/rl_sensor_actuator.xml"/>
+
+    <sensor>
+        <touch name="rl_t1" site="foot_s_rl"/>
+    </sensor>
+</mujoco>

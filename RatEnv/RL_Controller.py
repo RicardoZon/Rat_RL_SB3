@@ -10,7 +10,7 @@ from RatEnv.LegModel.hindLeg import HindLegM
 class MouseController(object):
     """docstring for MouseController"""
 
-    def __init__(self, fre, dt=0.002):
+    def __init__(self, SteNum=376):
         super(MouseController, self).__init__()
         PI = np.pi
         self.curStep = 0  # Spine
@@ -27,10 +27,7 @@ class MouseController(object):
         # --------------------------------------------------------------------- #
         self.phaseDiff = [0, PI, PI, 0]  # Trot
         self.period = 2 / 2
-        self.fre_cyc = fre  # 1.25#0.80
-        self.dt = dt
-        self.SteNum = int(1 / (self.dt * self.fre_cyc) / 2)  # /1.25)
-        self.SteNum = 376  # 373+3 if  Div=8
+        self.SteNum = SteNum
         # print("SteNum ----> ", self.SteNum)
         self.spinePhase = self.phaseDiff[2] - PI  # theta_spine=0, when theta_hl = pi
         # --------------------------------------------------------------------- #
