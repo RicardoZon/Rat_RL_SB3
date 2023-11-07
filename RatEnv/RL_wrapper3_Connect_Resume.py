@@ -10,9 +10,53 @@ import time
 import numpy as np
 from collections import deque
 
+# For Validation 57, 60
+class SimModel(object):
+    def __init__(self, xml_file: str, Render=False):
+        super(SimModel, self).__init__()
+        self.model = load_model_from_path(xml_file)
+        self.sim = MjSim(self.model)
+        if Render:
+            # render must be called mannually
+            self.viewer = MjViewer(self.sim)
+            self.viewer.cam.azimuth = 0
+            self.viewer.cam.lookat[0] += 0.25
+            self.viewer.cam.lookat[1] += -0.5
+            self.viewer.cam.distance = self.model.stat.extent * 0.5
+
+        self.sim_state = self.sim.get_state()
+        self.sim.set_state(self.sim_state)
+        self.imu_pos = deque([])
+        self.imu_quat = deque([])
+        self.imu_vel = deque([])
+        self.imu_acc = deque([])
+        self.imu_gyro = deque([])
+
+    def initializing(self):
+        self.sim.set_state(self.sim_state)
+
+        self.imu_pos = deque([])
+        self.imu_quat = deque([])
+        self.imu_vel = deque([])
+        self.imu_acc = deque([])
+        self.imu_gyro = deque([])
+
+    def runStep(self, ctrlData, legposcal=False):
+        self.sim.data.ctrl[:] = ctrlData
+        self.sim.step()
+
+        # imudata
+        self.pos = list(self.sim.data.sensordata[16:16 + 3])  # imu_pos
+        self.quat = list(self.sim.data.sensordata[19:19 + 4])
+        self.vel = list(self.sim.data.sensordata[23:23 + 3])
+        self.acc = list(self.sim.data.sensordata[26:26 + 3])
+        self.gyro = list(self.sim.data.sensordata[29:29 + 3])
+
+        self.imu_pos.append(self.pos)
+
 
 class RatRL(gym.Env):
-    def __init__(self, xml_file, fre_cyc=0.67, Render=False):
+    def __init__(self, xml_file, Render=False, Recorder=None):
         super(RatRL, self).__init__()
         # Wrapper
         high = np.array([np.inf] * 12).astype(np.float32)
@@ -21,7 +65,9 @@ class RatRL(gym.Env):
             np.array([1, 1, 1, 1]).astype(np.float32),
         )
         self.observation_space = spaces.Box(-high, high)
-
+        # self._max_episode_steps = 50
+        # self._max_episode_steps = 50*2  # V3_1 T/4
+        self._max_episode_steps = 50 * 4  # V3_2 T/8  100*
         self.Render = Render
 
         self.model = load_model_from_path(xml_file)
@@ -45,22 +91,17 @@ class RatRL(gym.Env):
 
         # Controller
         self.frame_skip = 1
-        self.Ndiv = 8  # divided by Ndiv pieces
-
         self._timestep = self.model.opt.timestep  # Default = 0.002s per timestep
-        self.dt = self._timestep * self.frame_skip  # dt
-
-        self.fre_cyc = fre_cyc # 1.25  # 0.80?
-        self.SteNum = int(1 / (self.dt * self.fre_cyc) / 2)  # /1.25)
-        self.N_cluster = (int(self.SteNum / self.Ndiv) + 1)  # [19]*8
-        self.SteNum = self.N_cluster * self.Ndiv  # Update SteNum  376?
-        # print(self.SteNum)
-        self.theController = MouseController(SteNum=self.SteNum)
+        self.dt = self._timestep * self.frame_skip  # dt = 0.01s
+        fre = 0.67
+        self.theController = MouseController(fre, dt=self.dt)
         self.ActionIndex = 0
+        self.Action_Div = [47, 47, 47, 47, 47, 47, 47, 47]  # 93, 93, 93, 94
+        self.MaxActIndex = len(self.Action_Div)
 
-        # self._max_episode_steps = 50
-        # self._max_episode_steps = 50*2  # V3_1 T/4
-        self._max_episode_steps = 50 * 4  # V3_2 T/8  100*
+        # Recorder
+        if Recorder:
+            self.Recorder = Recorder
 
     def do_simulation(self, ctrl, n_frames):
         self.sim.data.ctrl[:] = ctrl
@@ -143,12 +184,13 @@ class RatRL(gym.Env):
             info (dict): 函数返回的一些额外信息，可用于调试等
         """
         # ac = [] # rho, theta
-        ActionSignal = (np.array(action) + 1.0) / 2
+
         # 一次执行一个half周期
         index = self.ActionIndex
-        for _ in range(self.N_cluster):
-            CtrlData = self.theController.runStep(ActionSignal)  # No Spine
-            self.do_simulation(CtrlData, n_frames=self.frame_skip)
+        for _ in range(self.Action_Div[index]):
+            ActionSignal = (np.array(action) + 1.0) / 2
+
+            tCtrlData = self.theController.runStep(ActionSignal)  # No Spine
 
             vel_dir = -list(self.vel)[1]
             self.vel_list.append(vel_dir)
@@ -156,6 +198,14 @@ class RatRL(gym.Env):
             self.vels.append(vel)
             gyro = self.gyro
             self.gyros.append(gyro)
+
+            self.do_simulation(tCtrlData, n_frames=self.frame_skip)
+
+            if self.Recorder:
+                # manually updata recorder
+                # TODO: write it as a callback
+                self.Recorder.update(self)
+                self.Recorder.ctrldata.append(self.sim.data.ctrl.copy())
 
         # pos = self.theMouse.pos
         # posY_Dir = -pos[1]
@@ -167,14 +217,11 @@ class RatRL(gym.Env):
         vels_mean = np.array(self.vels).mean(axis=0)
         gyros_mean = np.array(self.gyros).mean(axis=0)
 
-        reward = -vels_mean[1] * 4  # to -5
+        reward = -vels_mean[1] * 4
 
         # self.rat = self.FFTProcess(np.array(self.gyros).transpose()[1])
         # if self.rat < 0.6:
         #     reward = reward - 0.3
-        if self.pos[2] < 0.04:
-            reward = reward - 1.0
-            self.done = True
 
         self.Reward_Now = reward
 
@@ -191,7 +238,7 @@ class RatRL(gym.Env):
         self.Vels_mean = vels_mean
         self.Gyros_mean = gyros_mean
 
-        self.ActionIndex = (self.ActionIndex + 1) % self.Ndiv  # Go to next Action Piece
+        self.ActionIndex = (self.ActionIndex + 1) % self.MaxActIndex  # Go to next Action Piece
 
         self._step = self._step + 1
         self.Action_Pre = action
@@ -201,8 +248,14 @@ class RatRL(gym.Env):
         if self._step > self._max_episode_steps:
             self.done = True  # 超过了一定步数就重置一下环境
             # print("Out")
-        info = {}
-
+        # info = None
+        info = {
+            "ActionIndex": self.ActionIndex,
+            # "reward_bias": reward_bias,
+            # "reward_holdon": reward_holdon,
+            # "sum_delta_a": sum_delta_a,
+            # "touch": contact_sensor
+        }
         # info = self.vel_list
         # print(np.mean(info))
 
@@ -236,9 +289,9 @@ if __name__ == '__main__':
 
     RUN_STEPS = 4000
     # RUN_STEPS = 50  # Half Per Action
-    # SceneName = "../models/dynamic_4l_t3.xml"
+    SceneName = "../models/dynamic_4l_t3.xml"
     # SceneName = "../models/dynamic_4l_t3_Change.xml"
-    SceneName = "../models/Scenario1_Planks.xml"
+    # SceneName = "../models/Scenario1_Planks.xml"
     # SceneName = "../models/Scenario3_Logs.xml"
     # SceneName = "../models/Scenario4_Stairs.xml"
 

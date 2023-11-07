@@ -10,13 +10,13 @@ from RatEnv.LegModel.hindLeg import HindLegM
 class MouseController(object):
     """docstring for MouseController"""
 
-    def __init__(self, fre, dt=0.002):
+    def __init__(self, SteNum=376):
         super(MouseController, self).__init__()
         PI = np.pi
         self.curStep = 0  # Spine
 
-        self.turn_F = -2 * PI / 180
-        self.turn_H = 5 * PI / 180
+        self.turn_F = -2 * PI / 180  # -2 * PI / 180 ---some = 0
+        self.turn_H = 5 * PI / 180  # 5 * PI / 180 --- some = 0
         self.pathStore = LegPath2()
         # [LF, RF, LH, RH]
         # --------------------------------------------------------------------- #
@@ -27,12 +27,9 @@ class MouseController(object):
         # --------------------------------------------------------------------- #
         self.phaseDiff = [0, PI, PI, 0]  # Trot
         self.period = 2 / 2
-        self.fre_cyc = fre  # 1.25#0.80
-        self.dt = dt
-        self.SteNum = int(1 / (self.dt * self.fre_cyc) / 2)  # /1.25)
-        # self.SteNum = 376  # 373+3
+        self.SteNum = SteNum
         # print("SteNum ----> ", self.SteNum)
-        self.spinePhase = self.phaseDiff[2]
+        self.spinePhase = self.phaseDiff[2] - PI  # theta_spine=0, when theta_hl = pi
         # --------------------------------------------------------------------- #
         self.spine_A = 0  # 10 a_s = 2theta_s
         # print("angle --> ", self.spine_A)
@@ -66,8 +63,8 @@ class MouseController(object):
         self.curStep = 0  # Spine
 
     def reset(self):
-        # self.trgXList = [[], [], [], []]
-        # self.trgYList = [[], [], [], []]
+        self.trgXList = [[], [], [], []]
+        self.trgYList = [[], [], [], []]
         self.curStep = 0  # Spine
 
     def getLegCtrl(self, leg_M, curStep, leg_ID, ActionSignal):
@@ -90,8 +87,8 @@ class MouseController(object):
         trg_x = currentPos[0]
         trg_y = currentPos[1]
 
-        # self.trgXList[leg_ID].append(trg_x)
-        # self.trgYList[leg_ID].append(trg_y)
+        self.trgXList[leg_ID].append(trg_x)
+        self.trgYList[leg_ID].append(trg_y)
 
         tX = math.cos(turnAngle) * trg_x - math.sin(turnAngle) * trg_y  # 进行倾角纠正，得到准确的末端点
         tY = math.cos(turnAngle) * trg_y + math.sin(turnAngle) * trg_x
@@ -105,9 +102,9 @@ class MouseController(object):
 
         return qVal
 
-    def getSpineVal(self, spineStep):
-        radian = 2 * np.pi * spineStep / self.SteNum
-        return self.spine_A * math.cos(radian - self.spinePhase)
+    def getSpineVal(self, spinestep):
+        radian = 2 * np.pi * spinestep / self.SteNum
+        return self.spine_A * math.cos(radian)  # 0-->1.0, pi-->-1
 
     # spinePhase = 2*np.pi*spineStep/self.SteNum
     # return self.spine_A*math.sin(spinePhase)
@@ -122,9 +119,13 @@ class MouseController(object):
         hindLeg_right_q = self.getLegCtrl(self.hl_right,
                                           self.curStep + self.stepDiff[3], 3, action[3])
 
-        spineStep = self.curStep  # + self.stepDiff[4]
-        spine = self.getSpineVal(spineStep)
-        # spine = 0
+        spineStep = (self.curStep + self.stepDiff[4]) % self.SteNum
+        if self.spine_A:
+            spine = self.getSpineVal(spineStep)
+            tail = -spine * np.pi / self.spine_A
+        else:
+            spine = 0
+            tail = 0
         self.curStep = (self.curStep + 1) % self.SteNum
 
         ctrlData = []
@@ -137,7 +138,5 @@ class MouseController(object):
         ctrlData.extend(foreLeg_right_q)
         ctrlData.extend(hindLeg_left_q)
         ctrlData.extend(hindLeg_right_q)
-        for i in range(3):
-            ctrlData.append(0)
-        ctrlData.append(spine)
+        ctrlData.extend([tail, 0, 0, spine])
         return ctrlData

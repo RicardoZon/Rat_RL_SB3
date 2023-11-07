@@ -229,6 +229,6 @@
     <actuator>
         <position name="neck" gear="1" ctrllimited="true" ctrlrange="-1.57 1.57"  forcelimited="true"  forcerange="-.157 .157" joint="neck" kp="100"/>
         <position name="head" gear="1" ctrllimited="true" ctrlrange="-1.57 1.57"  forcelimited="true"  forcerange="-.157 .157" joint="head" kp="100"/>
-        <position name="spine" gear="1" ctrllimited="true" ctrlrange="-1.57 1.57"  forcelimited="true"  forcerange="-.157 .157" joint="m_ss" kp="300"/>
+        <position name="spine" gear="1" ctrllimited="true" ctrlrange="-0.8 0.8"  forcelimited="true"  forcerange="-.157 .157" joint="m_ss" kp="300"/>
     </actuator>
 </mujoco>

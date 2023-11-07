@@ -114,8 +114,8 @@ class LegPath2(object):
 	def __init__(self, pathType="circle", device="cpu"):
 		super(LegPath2, self).__init__()
 		# Trot
-		self.para_CF = [-0.00, -0.045]
-		self.para_CH = [-0.00, -0.050]
+		# self.para_CF = [-0.00, -0.045]
+		# self.para_CH = [-0.00, -0.050]
 		#
 		self.para_FU = [[-0.00, -0.045], [0.03, 0.01]]
 		self.para_FD = [[-0.00, -0.045], [0.03, 0.005]]

@@ -9,6 +9,7 @@ class DATA_Recorder():
         self.imu_vel = deque([])
         self.imu_acc = deque([])
         self.imu_gyro = deque([])
+        self.ctrldata = deque([])
 
     def update(self, env):
         self.imu_pos.append(env.pos)
@@ -16,6 +17,8 @@ class DATA_Recorder():
         self.imu_vel.append(env.vel)
         self.imu_acc.append(env.acc)
         self.imu_gyro.append(env.gyro)
+        # if(env.ctrldata):
+        #     self.ctrldata.append(env.ctrldata)
 
     def savePath_Basic(self, FileName):
         imu_pos = np.array(self.imu_pos)
@@ -23,8 +26,10 @@ class DATA_Recorder():
         imu_vel = np.array(self.imu_vel)
         imu_acc = np.array(self.imu_acc)
         imu_gyro = np.array(self.imu_gyro)
+        ctrldata = np.array(self.ctrldata)
         scio.savemat(FileName + '.mat', {'pos': imu_pos, 'quat': imu_quat, 'vel': imu_vel,
-                                         'acc': imu_acc, 'gyro': imu_gyro})  # 写入mat文件
+                                         'acc': imu_acc, 'gyro': imu_gyro,
+                                         'ctrldata': ctrldata})  # 写入mat文件
 
     def savePath2(self, FileName, theMouse, SELFINFO=False):
         # scio.savemat('mvpath.mat', {'H_range': self.movePath})  # 写入mat文件

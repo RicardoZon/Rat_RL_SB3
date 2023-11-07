@@ -1,6 +1,7 @@
 <mujoco>
 
-    <include file="basic_scene_Change.xml" />
+    <include file="basic_scene.xml" />
+<!--    <include file="basic_scene_Change.xml" />-->
     <include file="leg_fl_assets/fl_t3_stl_assets.xml"/>
     <include file="leg_fr_assets/fr_t3_stl_assets.xml"/>
     <include file="leg_rl_assets/rl_t3_stl_assets.xml"/>
@@ -22,6 +23,23 @@
 
     <worldbody>
         <light diffuse=".5 .5 .5" pos="0 -1.0 3" dir="0 0 -1"/>    
+
+        <geom type="box" pos="0 -0.3 0.00" size="1.5 0.15 0.020" rgba="1 0.5 0 1"/>
+        <geom type="box" pos="0 -0.6 0.01" size="1.5 0.15 0.010" rgba="1 0.5 0 1"/>
+        <geom type="box" pos="0 -0.9 0.02" size="1.5 0.15 0.010" rgba="1 0.5 0 1"/>
+        <geom type="box" pos="0 -1.2 0.03" size="1.5 0.15 0.010" rgba="1 0.5 0 1"/>
+        <geom type="box" pos="0 -1.5 0.04" size="1.5 0.15 0.010" rgba="1 0.5 0 1"/>
+        <geom type="box" pos="0 -1.8 0.05" size="1.5 0.15 0.010" rgba="1 0.5 0 1"/>
+        <geom type="box" pos="0 -2.1 0.06" size="1.5 0.15 0.010" rgba="1 0.5 0 1"/>
+        <geom type="box" pos="0 -2.4 0.06" size="1.5 0.40 0.010" rgba="1 0.5 0 1"/>
+
+        <!-- <geom type="box" pos="0 -0.3 0" size="0.8 0.05 0.010" rgba="1 0.5 0 1"/> -->
+        <!-- <geom type="box" pos="0 -0.5 0" size="0.8 0.05 0.010" rgba="1 0.5 0 1"/> -->
+        <!-- <geom type="box" pos="0 -0.7 0" size="0.8 0.05 0.010" rgba="1 0.5 0 1"/> -->
+
+
+
+
         <geom type="plane" size="0 0 0.03" material="matplane" rgba="1 1 1 1"/>
         <camera name="body_cam" mode="fixed" pos="20 0.1 0.05" euler="90 90 0" fovy="1"/>
         <camera name="top camera" mode="fixed" pos="0 -1 30" euler="0 0 180" fovy="6"/>
